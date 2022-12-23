@@ -16,4 +16,16 @@ app.use(express.json());
 
 const server = require("http").createServer(app);
 
+const socket = require("socket.io");
+const io = socket(server);
+io.use(async (socket, next) => {
+    console.log({ socket });
+    return next();
+});
+
+io.on("connection", async (socket) => {
+    console.log("connected")
+})
+
+
 module.exports = server;
