@@ -1,3 +1,4 @@
+require("dotenv").config();
 const server = require("./socket");
 
 const port = 8080;
