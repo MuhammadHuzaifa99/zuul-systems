@@ -25,21 +25,35 @@ const socket = require("socket.io")
 const io = socket(server);
 
 const url = "http://zuul2.zuulsystems.com/api"; //process.env.URL;
+// const url = process.env.URL;
 
 io.use(async (socket, next) => {
 
+
+  console.log(socket.handshake.auth.site_identifier);
   axiosFunction(`${url}/auth-camera`, {
     macAddress: socket.handshake.auth.site_identifier,
     secretKey: socket.handshake.auth.psk,
   })
     .then((result) => {
+
       console.log("result done:",{ result });
-      io.cameraPi = result;
-      return next();
+      if(result['bool'] == true){
+
+        
+        io.cameraPi = result;
+        return next();
+
+      } else {
+        socket.disconnect();
+      }
+
+      
     })
     .catch((err) => {
       console.log("result error:",{ error: err.message });
-      next(new Error("Authentication error"));
+      socket.disconnect();
+      // next(new Error("Authentication error"));
     });
 });
 
