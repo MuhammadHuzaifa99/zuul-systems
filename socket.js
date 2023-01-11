@@ -20,45 +20,37 @@ app.use(express.json());
 
 const server = require("http").createServer(app);
 
-const socket = require("socket.io")
+const socket = require("socket.io");
 
 const io = socket(server);
 
-const url = "http://zuul2.zuulsystems.com/api"; //process.env.URL;
+const url = "https://dev.zuulsystems.com/api"; //process.env.URL;
 // const url = process.env.URL;
 
 io.use(async (socket, next) => {
-
-
   console.log(socket.handshake.auth.site_identifier);
   axiosFunction(`${url}/auth-camera`, {
     macAddress: socket.handshake.auth.site_identifier,
     secretKey: socket.handshake.auth.psk,
   })
     .then((result) => {
-
-      console.log("result done:",{ result });
-      if(result['bool'] == true){
-
-        
+      console.log("result done:", { result });
+      if (result["bool"] == true) {
         io.cameraPi = result;
         return next();
-
       } else {
         socket.disconnect();
       }
-
-      
     })
     .catch((err) => {
-      console.log("result error:",{ error: err.message });
+      console.log("result error:", { error: err.message });
       socket.disconnect();
       // next(new Error("Authentication error"));
     });
 });
 
 io.on("connection", async (socket) => {
-  console.log("connected",socket.id);
+  console.log("connected", socket.id);
 
   const macAddress = io.cameraPi.result[0].mac_address;
 
@@ -67,20 +59,22 @@ io.on("connection", async (socket) => {
     mac: macAddress,
   })
     .then((result) => {
-      console.log("result:",{ result });
+      console.log("result:", { result });
+      socket.emit("connected", url);
       return result;
     })
     .catch((err) => {
-      console.log("error:",{ error: err.message });
+      console.log("error:", { error: err.message });
+      socket.emit("error", { error: err.message });
       return err.message;
     });
 
   // console.log("Socket connection stablished");
 
   socket.on("image-capture", async (data) => {
-    console.log("img",data);
+    console.log("img", data);
     const objData = { data: data };
-    
+
     axiosFunction(`${url}/image-store`, objData)
       .then((result) => {
         console.log({ result });
@@ -88,6 +82,7 @@ io.on("connection", async (socket) => {
       })
       .catch((error) => {
         console.log({ error: error.message });
+        socket.emit("error", { error: err.message });
         return error;
       });
   });
@@ -95,7 +90,7 @@ io.on("connection", async (socket) => {
 
 app.post("/api/v1/guard/guard-camera", async (req, res) => {
   const { socket_id, ...resData } = req.body.data;
-  
+  console.log("image-capture", resData);
   const data = io.to(socket_id).emit("image-capture", resData);
   console.log("body", data);
   return res.status(200).json({
@@ -103,6 +98,5 @@ app.post("/api/v1/guard/guard-camera", async (req, res) => {
     data: data,
   });
 });
-
 
 module.exports = server;
