@@ -4,8 +4,8 @@ exports.axiosFunction = async (url, data) => {
   console.log(url, data);
   const result = await axios.post(url, data, {
     headers: {
-      socketHeaderKey: "sHHydot6qx8H6GZo",
-      socketSecretKey: "e4d1Y8ANRFAjNQ7L"
+      socketHeaderKey: process.env.HEADERKEY,
+      socketSecretKey: process.env.SECRETKEY
     }
   }); //.then((result) => {
   // console.log(result.data);
