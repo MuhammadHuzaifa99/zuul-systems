@@ -1,4 +1,4 @@
-const { axiosFunction } = require("./utility.js");
+const { axiosFunction } = require("./utilities/axios.js");
 
 // const url = "https://dev.zuulsystems.com/api"; //process.env.URL;
 const url = process.env.URL;
@@ -8,8 +8,8 @@ var cameraPi = ""
 exports.middlewearFunction = async (socket, next) => {
     console.log(socket.handshake.auth.site_identifier);
     axiosFunction(`${url}/auth-camera`, {
-      macAddress: socket.handshake.auth.site_identifier,
-      secretKey: socket.handshake.auth.psk,
+      zuul_key: socket.handshake.auth.zuul_key,
+      zuul_secret_key: socket.handshake.auth.zuul_secret_key,
     })
       .then((result) => {
         console.log("result done:", { result });
@@ -31,7 +31,7 @@ exports.middlewearFunction = async (socket, next) => {
  exports.connectionFunction =  async (socket) => {
     console.log("connected", socket.id);
 
-    const macAddress = cameraPi.result[0].mac_address;
+    const macAddress = cameraPi.result[0].id;
 
     axiosFunction(`${url}/socket-connection`, {
       socketId: socket.id,

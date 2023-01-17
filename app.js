@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
-const { authCheck } = require("./middlewear");
+const { authCheck } = require("./middlewears/middlewear");
 const server = require("http").createServer(app);
-const { set } = require("./global.socket.js");
+const { set } = require("./utilities/global.socket.js");
 
 const socket = require("socket.io");
 const { middlewearFunction, connectionFunction } = require("./socket");

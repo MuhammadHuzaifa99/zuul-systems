@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { get } = require("../global.socket");
+const { get } = require("../utilities/global.socket");
 
 router.route("/start-socket-connection").get((req, res) => {
   return res.status(200).json({
