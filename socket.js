@@ -6,7 +6,7 @@ const url = process.env.URL;
 var cameraPi = ""
 
 exports.middlewearFunction = async (socket, next) => {
-    console.log(socket.handshake.auth.site_identifier);
+    // console.log(socket.handshake.auth.zuul_key);
     axiosFunction(`${url}/auth-camera`, {
       zuul_key: socket.handshake.auth.zuul_key,
       zuul_secret_key: socket.handshake.auth.zuul_secret_key,
@@ -31,11 +31,11 @@ exports.middlewearFunction = async (socket, next) => {
  exports.connectionFunction =  async (socket) => {
     console.log("connected", socket.id);
 
-    const macAddress = cameraPi.result[0].id;
+    const remoteId = cameraPi.result[0].id;
 
     axiosFunction(`${url}/socket-connection`, {
       socketId: socket.id,
-      mac: macAddress,
+      remote_guard_id: remoteId,
     })
     .then((result) => {
       console.log("result:", { result });
