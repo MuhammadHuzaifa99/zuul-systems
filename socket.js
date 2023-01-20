@@ -41,7 +41,7 @@ exports.connectionFunction = async (socket) => {
         return;
       }
       console.log("result:", { result });
-      socket.emit("connected", url);
+      socket.emit("connected", {url, data: result});
       return result;
     })
     .catch((err) => {

@@ -3,9 +3,13 @@ const app = express();
 const { authCheck } = require("./middlewears/middlewear");
 const server = require("http").createServer(app);
 const { set } = require("./utilities/global.socket.js");
-
+const cors = require('cors');
 const socket = require("socket.io");
 const { middlewearFunction, connectionFunction } = require("./socket");
+
+app.use(cors({
+  origin: '*'
+}));
 
 const io = socket(server)
 
