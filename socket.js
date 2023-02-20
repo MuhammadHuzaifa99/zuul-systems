@@ -1,6 +1,6 @@
-const { axiosFunction } = require("./utilities/axios.js");
+const { axiosFunction, axiosGetFunction } = require("./utilities/axios.js");
 
-// const url = "https://dev.zuulsystems.com/api"; //process.env.URL;
+const url0 = process.env.URL0; // "https://dev.zuulsystems.com/api"; 
 const url = process.env.URL;
 
 var cameraPi = "";
@@ -78,4 +78,21 @@ exports.connectionFunction = async (socket) => {
         return error;
       });
   });
+
+  socket.on("scan-qr-code", async (data) =>{
+    console.log(data);
+    axiosGetFunction(`${url0}/scanned-qr-code/scanner/${data.id}/${data.code}`).then(res => {
+      console.log(res);
+      if(res["bool"] == true){
+      socket.emit("scan_log_id", { scan_log_id: res.result.scan_log.id });
+    }}).catch(err =>{
+      console.log({error: err.message});
+    })
+    // socket.emit("scan-qr-code", {status: "success", message: "qr code scaned"})
+  })
+
+  socket.on("scan-rfid", async(data) =>{
+    console.log("RFID Scanned", data);
+  })
+
 };
