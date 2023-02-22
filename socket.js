@@ -74,7 +74,7 @@ exports.connectionFunction = async (socket) => {
       })
       .catch((error) => {
         console.log({ error: error.message });
-        socket.emit("error", { error: err.message });
+        socket.emit("error", { error: error.message });
         return error;
       });
   });
@@ -84,15 +84,24 @@ exports.connectionFunction = async (socket) => {
     axiosGetFunction(`${url0}/scanned-qr-code/scanner/${data.id}/${data.code}`).then(res => {
       console.log(res);
       if(res["bool"] == true){
-      socket.emit("scan_log_id", { scan_log_id: res.result.scan_log.id });
+      socket.emit("scan_log_id", { scan_log_id: res.scanLog });
     }}).catch(err =>{
       console.log({error: err.message});
+      socket.emit("error", { error: err.message });
+
     })
     // socket.emit("scan-qr-code", {status: "success", message: "qr code scaned"})
   })
 
   socket.on("scan-rfid", async(data) =>{
-    console.log("RFID Scanned", data);
+    console.log({data});
+    axiosGetFunction(`${url0}/scanned-rfid-code/90`, data).then(res => {
+      // console.log({res: res.message});
+      socket.emit("scan-rfid", res)
+    }).catch(err=> {
+      console.log({error: err.message});
+      socket.emit("error", { error: err.message });
+    })
   })
 
 };
