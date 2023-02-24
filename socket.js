@@ -1,13 +1,13 @@
 const { axiosFunction, axiosGetFunction } = require("./utilities/axios.js");
 
-const url0 = process.env.URL0; // "https://dev.zuulsystems.com/api"; 
+const url0 = process.env.URL0; // "https://dev.zuulsystems.com/api";
 const url = process.env.URL;
 
 var cameraPi = "";
 
 exports.middlewearFunction = async (socket, next) => {
   // console.log(socket.handshake.auth.zuul_key);
-  axiosFunction(`${url}/auth-camera`, {
+  axiosFunction(`${url}/auth-remote-guard`, {
     zuul_key: socket.handshake.auth.zuul_key,
     zuul_secret_key: socket.handshake.auth.zuul_secret_key,
   })
@@ -26,7 +26,7 @@ exports.middlewearFunction = async (socket, next) => {
     });
 };
 
-exports.connectionFunction = async (socket) => {
+exports.connectionFunction = async (socket) => { 
   console.log("connected", socket.id);
 
   const remoteId = cameraPi.result[0].id;
@@ -41,7 +41,7 @@ exports.connectionFunction = async (socket) => {
         return;
       }
       console.log("result:", { result });
-      socket.emit("connected", {url, data: result});
+      socket.emit("connected", { url, data: result });
       return result;
     })
     .catch((err) => {
@@ -79,29 +79,49 @@ exports.connectionFunction = async (socket) => {
       });
   });
 
-  socket.on("scan-qr-code", async (data) =>{
+  socket.on("scan-qr-code", async (data) => {
     console.log(data);
-    axiosGetFunction(`${url0}/scanned-qr-code/scanner/${data.id}/${data.code}`).then(res => {
-      console.log(res);
-      if(res["bool"] == true){
-      socket.emit("scan_log_id", { scan_log_id: res.scanLog });
-    }}).catch(err =>{
-      console.log({error: err.message});
-      socket.emit("error", { error: err.message });
+    axiosGetFunction(`${url0}/scanned-qr-code/scanner/${data.id}/${data.code}`)
+      .then((res) => {
+        console.log(res);
+        if (res["bool"] == true) {
+          socket.emit("scan_log_id", { scan_log_id: res.scanLog });
+        }
+      })
+      .catch((err) => {
+        console.log({ error: err.message });
+        socket.emit("error", { error: err.message });
+      });
+  });
 
+
+  socket.on("get-rfid-codes", async (data) =>{
+    axiosGetFunction(`${url}/get-rfid-codes/1`, {
+      userName: data.userName,
+      password: data.password,
+    }).then(res => {
+      let rfidCodes = res.result.list.split("\n")
+      socket.emit("get-rfid-codes",rfidCodes)
+      console.log(rfidCodes);
+    }).catch(err => {
+      console.log(err.message);
     })
-    // socket.emit("scan-qr-code", {status: "success", message: "qr code scaned"})
   })
+  
 
-  socket.on("scan-rfid", async(data) =>{
-    console.log({data});
-    axiosGetFunction(`${url0}/scanned-rfid-code/90`, data).then(res => {
-      // console.log({res: res.message});
-      socket.emit("scan-rfid", res)
-    }).catch(err=> {
-      console.log({error: err.message});
-      socket.emit("error", { error: err.message });
+  socket.on("scan-rfid", async (data) => {
+    console.log({ data });
+    axiosGetFunction(`${url}/scanned-rfid-code/${data.rfidCode}/1`, {
+      userName: data.userName,
+      password: data.password,
     })
-  })
-
+      .then((res) => {
+        // console.log({res: res.message});
+        socket.emit("scan-rfid", res);
+      })
+      .catch((err) => {
+        console.log({ error: err.message });
+        socket.emit("error", { error: err.message });
+      });
+  });
 };
