@@ -9,7 +9,7 @@ exports.middlewearFunction = async (socket, next) => {
   // console.log(socket.handshake.auth.zuul_key);
   axiosFunction(`${url}/auth-remote-guard`, {
     zuul_key: socket.handshake.auth.zuul_key,
-    zuul_secret_key: socket.handshake.auth.zuul_secret_key,
+    zuul_secret: socket.handshake.auth.zuul_secret,
   })
     .then((result) => {
       console.log("result done:", { result });
@@ -59,6 +59,7 @@ exports.connectionFunction = async (socket) => {
       })
       .catch((error) => {
         console.log(error.message);
+      socket.emit("error", { error: error.message });
         return error;
       });
   });
@@ -95,28 +96,27 @@ exports.connectionFunction = async (socket) => {
   });
 
 
-  socket.on("get-rfid-codes", async (data) =>{
-    axiosGetFunction(`${url}/get-rfid-codes/1`, {
+  socket.on("get_all_rf_code", async (data) =>{
+    axiosGetFunction(`${url}/get_all_rf_code/${data.remoteGuardId}`, {
       userName: data.userName,
       password: data.password,
     }).then(res => {
-      let rfidCodes = res.result.list.split("\n")
-      socket.emit("get-rfid-codes",rfidCodes)
+      console.log({res});
+      let rfidCodes = res.result.data.split("\n")
+      socket.emit("get_all_rf_code",rfidCodes)
       console.log(rfidCodes);
     }).catch(err => {
       console.log(err.message);
+      socket.emit("error", { error: err.message });
     })
   })
   
 
   socket.on("scan-rfid", async (data) => {
     console.log({ data });
-    axiosGetFunction(`${url}/scanned-rfid-code/${data.rfidCode}/1`, {
-      userName: data.userName,
-      password: data.password,
-    })
+    axiosGetFunction(`${url}/scanned_rf_code/${data.remoteGuardId}/${data.rfidCode}`)
       .then((res) => {
-        // console.log({res: res.message});
+        console.log({res});
         socket.emit("scan-rfid", res);
       })
       .catch((err) => {
