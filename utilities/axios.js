@@ -1,11 +1,15 @@
 const axios = require("axios");
 
-exports.axiosFunction = async (url, data) => {
-  console.log(url, data);
+exports.axiosFunction = async (url, data, token = null) => {
+  console.log(url, data, token);
   const result = await axios.post(url, data, {
+    // auth: {
+    //   "Authorization": token
+    // },
     headers: {
       "socket-header-key": process.env.HEADERKEY,
       "socket-secret-key": process.env.SECRETKEY,
+      Authorization: token
     },
   }); //.then((result) => {
   // console.log(result.data);
@@ -13,7 +17,7 @@ exports.axiosFunction = async (url, data) => {
   // });
 };
 
-exports.axiosGetFunction = async (url, basicAuth = null) => {
+exports.axiosGetFunction = async (url, basicAuth = null, token = null) => {
   console.log(url);
   let auth;
   if (basicAuth) {
@@ -27,6 +31,7 @@ exports.axiosGetFunction = async (url, basicAuth = null) => {
     headers: {
       "socket-header-key": process.env.HEADERKEY,
       "socket-secret-key": process.env.SECRETKEY,
+      Authorization: token
     },
   }); //.then((result) => {
   // console.log(result.data);

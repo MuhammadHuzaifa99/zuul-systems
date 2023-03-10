@@ -26,7 +26,7 @@ exports.middlewearFunction = async (socket, next) => {
     });
 };
 
-exports.connectionFunction = async (socket) => { 
+exports.connectionFunction = async (socket) => {
   console.log("connected", socket.id);
 
   const remoteId = cameraPi.result[0].id;
@@ -59,7 +59,7 @@ exports.connectionFunction = async (socket) => {
       })
       .catch((error) => {
         console.log(error.message);
-      socket.emit("error", { error: error.message });
+        socket.emit("error", { error: error.message });
         return error;
       });
   });
@@ -80,9 +80,59 @@ exports.connectionFunction = async (socket) => {
       });
   });
 
+  socket.on("log-in", async (data) => {
+    axiosFunction(`${url0}/login`, {
+      phone_number: data.phoneNumber,
+      password: data.password
+    }).then(result => {
+      console.log(result.result.success.token)
+      socket.emit("log-in", { token: result.result.success.token })
+    }).catch(err => console.log(err.message))
+  })
+
+
+  socket.on("get-qr-code", async (data) => {
+    // console.log({data})
+    axiosFunction(`${url0}/passes`, {
+      // "pass_date": "2021-06-02 12:00",
+      // "pass_end_date": "2021-06-03 12:00",
+      // "pass_validity": "xxx",
+      // "created_by": 12477,
+      // "isSMS": 0,
+      // "pass_type": "self",
+      // "visitor_type": "friends_family",
+      // "description": " 706 Timbercrest Road Anchorage Alaska 90852",
+      // "event_id": "5",
+      // "selected_contacts": [
+      //   1, 2
+      // ],
+      // "lat": "1",
+      // "lng": "1",
+      // "searchTerm": ""
+
+      "pass_date": "2023-03-08T23:28:48.172Z",
+      "pass_end_date": "03-10-2023 11:28 PM",
+      "pass_validity": "xxx",
+      "pass_type": "self",
+      "visitor_type": "friends_family",
+      "description": " 706 Timbercrest Road Anchorage Alaska 90852",
+      "event_id": "5",
+      "selected_contacts": [
+        1, 2
+      ],
+      "lat": "1",
+      "lng": "1",
+      "searchTerm": ""
+
+    }, data.token).then(result => {
+      console.log({ result })
+      socket.emit("get-qr-code", { qrCode: result.result })
+    }).catch(err => console.log({ error: err.message }))
+  })
+
   socket.on("scan-qr-code", async (data) => {
     console.log(data);
-    axiosGetFunction(`${url0}/scanned-qr-code/scanner/${data.id}/${data.code}`)
+    axiosGetFunction(`${url}/scanned-qr-code/scanner/${data.id}/${data.code}`)//, "", data.token)
       .then((res) => {
         console.log(res);
         if (res["bool"] == true) {
@@ -96,27 +146,27 @@ exports.connectionFunction = async (socket) => {
   });
 
 
-  socket.on("get_all_rf_code", async (data) =>{
+  socket.on("get_all_rf_code", async (data) => {
     axiosGetFunction(`${url}/get_all_rf_code/${data.remoteGuardId}`, {
       userName: data.userName,
       password: data.password,
     }).then(res => {
-      console.log({res});
+      console.log({ res });
       let rfidCodes = res.result.data.split("\n")
-      socket.emit("get_all_rf_code",rfidCodes)
+      socket.emit("get_all_rf_code", rfidCodes)
       console.log(rfidCodes);
     }).catch(err => {
       console.log(err.message);
       socket.emit("error", { error: err.message });
     })
   })
-  
+
 
   socket.on("scan-rfid", async (data) => {
     console.log({ data });
     axiosGetFunction(`${url}/scanned_rf_code/${data.remoteGuardId}/${data.rfidCode}`)
       .then((res) => {
-        console.log({res});
+        console.log({ res });
         socket.emit("scan-rfid", res);
       })
       .catch((err) => {
