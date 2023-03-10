@@ -174,5 +174,19 @@ exports.connectionFunction = async (socket) => {
         socket.emit("error", { error: err.message });
       });
   });
+
+  socket.on("web-relay", async (data) => {
+    console.log(data)
+    axiosFunction(`${url}/open-web-relay`, {
+      web_relay_id: data.webRelayId,
+      remote_guard_id: data.remote_guard,
+      type: data.type,
+      scan_log_id: 1,
+      ignore_scan_log_id: true
+    }).then(result => {
+      console.log(result)
+      socket.emit('web-relay', result)
+    }).catch(err => console.log({ error: err }))
+  })
+
 };
-// commit
