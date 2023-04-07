@@ -147,14 +147,15 @@ exports.connectionFunction = async (socket) => {
 
 
   socket.on("get_all_rf_code", async (data) => {
+    console.log(data)
     axiosGetFunction(`${url}/get_all_rf_code/${data.remoteGuardId}`, {
       userName: data.userName,
       password: data.password,
     }).then(res => {
-      console.log({ res });
+      // console.log({ res });
       let rfidCodes = res.result.data.split("\n")
       socket.emit("get_all_rf_code", rfidCodes)
-      console.log(rfidCodes);
+      // console.log(rfidCodes);
     }).catch(err => {
       console.log(err.message);
       socket.emit("error", { error: err.message });
@@ -181,12 +182,12 @@ exports.connectionFunction = async (socket) => {
       web_relay_id: data.webRelayId,
       remote_guard_id: data.remote_guard,
       type: data.type,
-      scan_log_id: 1,
-      ignore_scan_log_id: true
+      scan_log_id: 0,
+      // ignore_scan_log_id: true
     }).then(result => {
       console.log(result)
       socket.emit('web-relay', result)
-    }).catch(err => console.log({ error: err }))
+    }).catch(err => console.log({ error: err.message }))
   })
 
 };
