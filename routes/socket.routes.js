@@ -11,7 +11,7 @@ router.route("/start-socket-connection").get((req, res) => {
 
 router.route("/guard/guard-camera").post(async (req, res) => {
   const { socket_id, ...resData } = req.body.data;
-  console.log("image-capture", resData);
+  console.log(req.body.data);
   const io = get();
   console.log({ socket_id });
   const data = io.to(socket_id).emit("image-capture", resData);
