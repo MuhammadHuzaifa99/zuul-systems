@@ -22,4 +22,15 @@ router.route("/guard/guard-camera").post(async (req, res) => {
   });
 });
 
+router.route("/guard/open-gate").post(async (req,res) =>{
+  const {socket_id, ...resData} = req.body;
+  console.log(socket_id)
+  const io = get()
+  const data = io.to(socket_id).emit("open-gate", resData)
+  return res.status(200).json({
+    status: "success",
+    data: data
+  })
+})
+
 module.exports = router;
