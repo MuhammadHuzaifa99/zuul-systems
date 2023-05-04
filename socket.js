@@ -179,7 +179,7 @@ exports.connectionFunction = async (socket) => {
   socket.on("web-relay", async (data) => {
     console.log(data)
     axiosFunction(`${url}/open-web-relay`, {
-      web_relay_id: data.webRelayId,
+      web_relay_id: data.web_relay,
       remote_guard_id: data.remote_guard,
       type: data.type,
       scan_log_id: 0,
