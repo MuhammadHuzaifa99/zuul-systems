@@ -4,7 +4,7 @@ exports.authCheck = (req,res,next) =>{
     const head = req.headers["socket-header-key"]
     const secret = req.headers["socket-secret-key"]
     
-    console.log("out",headerKey, secretKey, head, secret);
+    console.log("out",req.headers);
     if(headerKey != process.env.HEADERKEY || secretKey != process.env.SECRETKEY){
         return res.status(404).json({
             status: false,
