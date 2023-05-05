@@ -1,8 +1,8 @@
 exports.authCheck = (req,res,next) =>{
     const headerKey = req.headers.socket_header_key
     const secretKey = req.headers.socket_secret_key
-    const head = req.headers["socket-header-key"]
-    const secret = req.headers["socket-secret-key"]
+    const head = req.headers["Socket-Header-Key"]
+    const secret = req.headers["Socket-Secret-Key"]
     
     console.log("out",req.headers);
     if(headerKey != process.env.HEADERKEY || secretKey != process.env.SECRETKEY){
