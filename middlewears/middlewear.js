@@ -5,7 +5,7 @@ exports.authCheck = (req,res,next) =>{
     const secret = req.headers["socket-secret-key"]
     
     console.log("out",req.headers);
-    if(headerKey != process.env.HEADERKEY || secretKey != process.env.SECRETKEY){
+    if(head != process.env.HEADERKEY || secret != process.env.SECRETKEY){
         return res.status(404).json({
             status: false,
             message: "Unauthorized"
