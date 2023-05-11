@@ -83,7 +83,8 @@ exports.connectionFunction = async (socket) => {
   socket.on("log-in", async (data) => {
     axiosFunction(`${url0}/login`, {
       phone_number: data.phoneNumber,
-      password: data.password
+      password: data.password,
+      register_with_phonenumber: 1
     }).then(result => {
       console.log(result.result.success.token)
       socket.emit("log-in", { token: result.result.success.token })
@@ -132,11 +133,11 @@ exports.connectionFunction = async (socket) => {
 
   socket.on("scan-qr-code", async (data) => {
     console.log(data);
-    axiosGetFunction(`${url}/scanned-qr-code/scanner/${data.id}/${data.code}`)//, "", data.token)
+    axiosGetFunction(`${url}/scanned-qr-code/guard/${data.id}/${data.code}?guard_type=remote_guard&&guard_id=18079`)//, "", data.token)
       .then((res) => {
-        console.log(res);
+        console.log({res});
         if (res["bool"] == true) {
-          socket.emit("scan_log_id", { scan_log_id: res.scanLog });
+          socket.emit("scan_log_id", { scan_log_id: res.result.scan_log.id });
         }
       })
       .catch((err) => {
@@ -190,4 +191,13 @@ exports.connectionFunction = async (socket) => {
     }).catch(err => console.log({ error: err.message }))
   })
 
+  socket.on("resident-list", async data =>{
+    console.log(data)
+
+    axiosFunction(`${url}/get-guard-residents`, {
+      remote_guard: data.remote_guard
+    }).then(result => 
+      console.log(result))
+      socket.emit('resident-list', result)
+  } )
 };

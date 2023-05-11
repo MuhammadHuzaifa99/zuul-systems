@@ -1,7 +1,8 @@
 const axios = require("axios");
 
 exports.axiosFunction = async (url, data, token = null) => {
-  console.log(url, data, token);
+  // console.log(url, data, token);
+  console.log(data)
   const result = await axios.post(url, data, {
     // auth: {
     //   "Authorization": token
@@ -9,7 +10,9 @@ exports.axiosFunction = async (url, data, token = null) => {
     headers: {
       "socket-header-key": process.env.HEADERKEY,
       "socket-secret-key": process.env.SECRETKEY,
-      Authorization: token
+      Authorization: token,
+      "Accept": "application/json",
+      "Content-Type": "application/json"
     },
   }); //.then((result) => {
   // console.log(result.data);
