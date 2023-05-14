@@ -154,7 +154,7 @@ exports.connectionFunction = async (socket) => {
       password: data.password,
     }).then(res => {
       // console.log({ res });
-      let rfidCodes = res.result.data.split("\n")
+      let rfidCodes = res.result.data;
       socket.emit("get_all_rf_code", rfidCodes)
       // console.log(rfidCodes);
     }).catch(err => {
